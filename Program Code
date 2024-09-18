@@ -1,0 +1,45 @@
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Mint, MintTo, TokenAccount, Token};
+
+declare_id!("YourProgramIDHere");
+
+#[program]
+pub mod luckycharms_nft {
+    use super::*;
+
+    pub fn mint_nft(
+        ctx: Context<MintNFT>,
+        metadata_uri: String,
+        name: String,
+        symbol: String
+    ) -> Result<()> {
+        let mint = &ctx.accounts.mint;
+        let token_account = &ctx.accounts.token_account;
+        let authority = &ctx.accounts.authority;
+
+        // Mint the NFT
+        let cpi_accounts = MintTo {
+            mint: mint.to_account_info(),
+            to: token_account.to_account_info(),
+            authority: authority.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_ctx = CpiContext::new(cpi_program, cpi_accounts);
+        token::mint_to(cpi_ctx, 1)?;
+
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct MintNFT<'info> {
+    #[account(init, payer = authority, mint::decimals = 0, mint::authority = authority)]
+    pub mint: Account<'info, Mint>,
+    #[account(init, payer = authority, token::mint = mint, token::authority = authority)]
+    pub token_account: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    pub rent: Sysvar<'info, Rent>,
+    pub system_program: Program<'info, System>,
+}
