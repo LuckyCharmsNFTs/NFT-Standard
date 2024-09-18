@@ -1,0 +1,12 @@
+The metadata is handled via Metaplex. 
+
+solana address -k /path/to/your/solana-keypair.json
+
+# Set cluster to devnet
+solana config set --url https://api.devnet.solana.com
+
+# Build the program
+anchor build
+
+# Deploy the program
+anchor deploy
