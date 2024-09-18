@@ -1,0 +1,25 @@
+const anchor = require('@project-serum/anchor');
+const { Connection, PublicKey } = require('@solana/web3.js');
+
+(async () => {
+  const provider = anchor.AnchorProvider.local();
+  anchor.setProvider(provider);
+
+  const programId = new PublicKey('YourProgramIDHere');
+  const program = new anchor.Program(idl, programId);
+
+  const mintKeypair = anchor.web3.Keypair.generate();
+  const tokenAccount = anchor.web3.Keypair.generate();
+
+  await program.rpc.mintNft("https://metadata.uri/json", "Lucky Charm", "LCKY", {
+    accounts: {
+      mint: mintKeypair.publicKey,
+      tokenAccount: tokenAccount.publicKey,
+      authority: provider.wallet.publicKey,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    },
+    signers: [mintKeypair],
+  });
+})();
